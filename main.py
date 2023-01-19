@@ -7,9 +7,9 @@ COMPANY_NAME = "Tesla Inc"
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 
-MY_API = " 9HVAUJXFB9RM2C7A"
-account_sid = "ACcf455b5ac3d9f37f5ed7c2abb00ee400"
-auth_token = "b4b385ba816636d0ace0e27d6b573a57"
+MY_API = " Your twilo API "
+account_sid = "your twilio SID"
+auth_token = "your twilio TOKEN"
 
 PARAMETER = {
     "function": "TIME_SERIES_DAILY_ADJUSTED",
@@ -17,7 +17,7 @@ PARAMETER = {
     "apikey": MY_API
 }
 
-MY_NEWS_API = "9a2da226d1294298bfdaa057afc3fde6"
+MY_NEWS_API = "alphavantage API"
 
 NEWS_PARAMETER = {
     "q": COMPANY_NAME,
@@ -26,15 +26,16 @@ NEWS_PARAMETER = {
     "apiKey": MY_NEWS_API
 }
 
+# extract the yesterday and yesterday before price and find percentage.
 with requests.get(STOCK_ENDPOINT, params=PARAMETER) as response:
     response.raise_for_status()
     data = response.json()["Time Series (Daily)"]
 
     data_list = [value for (key,value) in data.items()]
-
+    # yerterday data     
     yesterday_data = data_list[0]
     yesterday_closing_price = float(yesterday_data["4. close"])
-
+    # day before data      
     day_before = data_list[1]
     day_before_closing_price = float(day_before["4. close"])
 
@@ -44,9 +45,10 @@ with requests.get(STOCK_ENDPOINT, params=PARAMETER) as response:
         up_down = "🔺"
     else:
         up_down = "🔻"
-
+    # percentage    
     percentage = round((difference/yesterday_closing_price)*100)
 
+    # if percentage >1 ,find reasons
     if abs(percentage)>1:
         print(percentage)
         with requests.get(
@@ -56,8 +58,8 @@ with requests.get(STOCK_ENDPOINT, params=PARAMETER) as response:
 
             tree_articles = shows_data[:3]
 
-            # print(tree_articles)
-
+           
+            # Send message
             send_message_list = [f"{STOCK}:{up_down}{percentage}% \nHeadline:{a['title']}.\nBrief:{a['description']}" for a in tree_articles]
             print(send_message_list)
             for article in send_message_list:
@@ -66,7 +68,7 @@ with requests.get(STOCK_ENDPOINT, params=PARAMETER) as response:
                     .create(
                     body=article,
                     from_='+13393561927',
-                    to='+905452971956'
+                    to='Your Phone Number'
                 )
 
 
